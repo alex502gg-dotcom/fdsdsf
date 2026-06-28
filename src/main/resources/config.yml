@@ -1,0 +1,43 @@
+# AuctionHouse Configuration
+
+# Currency symbol displayed in GUI
+currency-symbol: "$"
+
+# Tax percentage taken from sales (0-100)
+tax-percent: 5
+
+# Maximum listings per player (use -1 for unlimited)
+max-listings-per-player: 10
+
+# Default auction duration in minutes
+default-duration-minutes: 1440
+
+# Minimum price allowed
+min-price: 1.0
+
+# Maximum price allowed
+max-price: 10000000.0
+
+# GUI settings
+gui:
+  title: "§6§lAuction House"
+  rows: 6
+  items-per-page: 45
+
+# Messages
+messages:
+  prefix: "§8[§6AH§8] §r"
+  no-permission: "§cYou don't have permission to do that."
+  item-listed: "§aYour §e{item} §awas listed for §e{price}§a!"
+  item-sold: "§aYou sold §e{item} §afor §e{price}§a! §7(Tax: {tax})"
+  item-purchased: "§aYou purchased §e{item} §afor §e{price}§a!"
+  auction-cancelled: "§aAuction cancelled. Item returned to your inventory."
+  auction-expired: "§eYour auction for §6{item} §ehas expired. Item returned."
+  no-item: "§cYou must hold an item to sell!"
+  invalid-price: "§cInvalid price. Use a number between {min} and {max}."
+  listing-limit: "§cYou've reached your listing limit ({max} listings)."
+  own-auction: "§cYou can't buy your own auction!"
+  not-enough-money: "§cYou don't have enough money!"
+  auction-not-found: "§cAuction not found."
+  inventory-full: "§cYour inventory is full! Item saved to unclaimed."
+  plugin-reloaded: "§aPlugin reloaded!"
