@@ -1,0 +1,124 @@
+name: CI/CD — AuctionHouse
+
+on:
+  push:
+    branches: [ main, master, dev ]
+    tags:     [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────
+  # 1. BUILD & TEST
+  # ─────────────────────────────────────────
+  build:
+    name: Build (Java 21)
+    runs-on: ubuntu-latest
+
+    outputs:
+      jar_name: ${{ steps.jar_name.outputs.name }}
+      version:  ${{ steps.version.outputs.value }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # нужен для тегов
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # Читаем версию из pom.xml
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "value=$VERSION" >> $GITHUB_OUTPUT
+          echo "Версия: $VERSION"
+
+      - name: Build with Maven
+        run: mvn clean package -B -DskipTests
+
+      # Узнаём точное имя собранного JAR
+      - name: Get JAR name
+        id: jar_name
+        run: |
+          JAR=$(ls target/AuctionHouse-*.jar | grep -v original | head -1)
+          echo "name=$JAR" >> $GITHUB_OUTPUT
+          echo "JAR: $JAR"
+
+      # Сохраняем артефакт для следующих джобов
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuctionHouse-${{ steps.version.outputs.value }}-${{ github.sha }}
+          path: ${{ steps.jar_name.outputs.name }}
+          retention-days: 14
+
+  # ─────────────────────────────────────────
+  # 2. RELEASE (только при push тега v*.*.*)
+  # ─────────────────────────────────────────
+  release:
+    name: GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write       # нужно для создания release
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AuctionHouse-${{ needs.build.outputs.version }}-${{ github.sha }}
+          path: release/
+
+      # Генерируем changelog из коммитов с последнего тега
+      - name: Generate changelog
+        id: changelog
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: tags } = await github.rest.repos.listTags({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              per_page: 2
+            });
+            const prevTag = tags[1]?.name ?? null;
+            let compareUrl = '';
+            let body = '';
+            if (prevTag) {
+              const { data: cmp } = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo:  context.repo.repo,
+                base: prevTag,
+                head: context.ref.replace('refs/tags/', '')
+              });
+              compareUrl = cmp.html_url;
+              const lines = cmp.commits.map(c =>
+                `- ${c.commit.message.split('\n')[0]} ([${c.sha.substring(0,7)}](${c.html_url}))`
+              );
+              body = `## Что нового\n${lines.join('\n')}\n\n[Полный diff](${compareUrl})`;
+            } else {
+              body = '## Первый релиз 🎉';
+            }
+            core.setOutput('body', body);
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "AuctionHouse ${{ github.ref_name }}"
+          body: ${{ steps.changelog.outputs.body }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}  # v1.0.0-beta → prerelease
+          files: release/AuctionHouse-*.jar
