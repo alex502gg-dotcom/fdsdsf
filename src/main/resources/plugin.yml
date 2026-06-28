@@ -1,0 +1,45 @@
+name: AuctionHouse
+version: '${project.version}'
+main: dev.auction.auctionhouse.AuctionHouse
+api-version: '1.21'
+description: Full-featured Auction House plugin
+authors: [AuctionDev]
+depend: [Vault]
+
+commands:
+  ah:
+    description: Open the Auction House
+    usage: /ah
+    aliases: [auction, auctionhouse]
+  ahsell:
+    description: Put item in hand on auction
+    usage: /ahsell <price> [hand [all|<N>]] [all] [--days N] [--auto] [--top N]
+    aliases: [sell]
+  ahcancel:
+    description: Cancel your auction by ID
+    usage: /ahcancel <id>
+  ahreload:
+    description: Reload the plugin config
+    usage: /ahreload
+    permission: auctionhouse.admin
+  agree:
+    description: Confirm selling your entire inventory
+    usage: /agree
+  disagree:
+    description: Cancel selling your entire inventory
+    usage: /disagree
+    aliases: [cancel]
+
+permissions:
+  auctionhouse.use:
+    description: Use the Auction House
+    default: true
+  auctionhouse.sell:
+    description: Sell items on the Auction House
+    default: true
+  auctionhouse.admin:
+    description: Admin commands
+    default: op
+  auctionhouse.bypass.limit:
+    description: Bypass max listing limit
+    default: op

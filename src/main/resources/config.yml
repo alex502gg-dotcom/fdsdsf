@@ -1,0 +1,54 @@
+# AuctionHouse Configuration
+
+# Currency symbol displayed in GUI
+currency-symbol: "$"
+
+# Tax percentage taken from sales (0-100)
+tax-percent: 5
+
+# Maximum listings per player (use -1 for unlimited)
+max-listings-per-player: 10
+
+# Default auction duration in minutes (1440 = 24h)
+default-duration-minutes: 1440
+
+# Minimum price allowed
+min-price: 1.0
+
+# Maximum price allowed
+max-price: 10000000.0
+
+# ── Платные опции ────────────────────────────────────────────────────────
+# Стоимость одних суток кастомной длительности (/ahsell --days N)
+custom-day-cost: 10000.0
+
+# Стоимость авто-продления в месяц (/ahsell --auto)
+# Лот продлевается бесконечно до продажи. Каждый месяц списывается сумма.
+auto-renew-cost: 100000.0
+
+# Стоимость одних суток топ-позиции в GUI (/ahsell --top N)
+top-slot-day-cost: 10000.0
+
+# GUI settings
+gui:
+  title: "§6§lAuction House"
+  rows: 6
+  items-per-page: 45
+
+# Messages
+messages:
+  prefix: "§8[§6AH§8] §r"
+  no-permission: "§cУ вас нет прав."
+  item-listed: "§aПредмет §e{item} §aвыставлен за §e{price}§a!"
+  item-sold: "§aВы продали §e{item} §aза §e{price}§a! §7(Налог: {tax})"
+  item-purchased: "§aВы купили §e{item} §aза §e{price}§a!"
+  auction-cancelled: "§aЛот отменён. Предмет возвращён в инвентарь."
+  auction-expired: "§eВаш лот §6{item} §eистёк. Предмет возвращён."
+  no-item: "§cВозьмите предмет в руку!"
+  invalid-price: "§cНеверная цена. Введите число от {min} до {max}."
+  listing-limit: "§cВы достигли лимита лотов ({max} шт.)."
+  own-auction: "§cНельзя купить свой же лот!"
+  not-enough-money: "§cНедостаточно монет!"
+  auction-not-found: "§cЛот не найден."
+  inventory-full: "§cИнвентарь полон! Предмет сохранён в Непринятые."
+  plugin-reloaded: "§aПлагин перезагружен!"
